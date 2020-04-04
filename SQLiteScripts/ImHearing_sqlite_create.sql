@@ -1,3 +1,10 @@
+CREATE TABLE ArchiveTable (
+	archive_id           varchar(255) NOT NULL  PRIMARY KEY  ,
+	archive_creation_date datetime     ,
+	path                 varchar(255)     ,
+	uploaded             boolean
+ );
+
 CREATE TABLE RecordTable (
 	record_id            varchar(255) NOT NULL    ,
 	record_date          date     ,
@@ -5,7 +12,8 @@ CREATE TABLE RecordTable (
 	record_end           datetime     ,
 	record_size          bigint     ,
 	uploaded             varchar(100)     ,
-	path                 varchar(255)
+	path                 varchar(255)     ,
+	CONSTRAINT Unq_RecordTable_record_id UNIQUE ( record_id )
  );
 
 CREATE INDEX Idx_record_start ON RecordTable ( record_start );
@@ -21,6 +29,13 @@ CREATE TABLE UserTable (
  );
 
 CREATE INDEX Idx_user_id ON UserTable ( user_id );
+
+CREATE TABLE RecordArchiveTable (
+	fk_record_id         varchar(255)     ,
+	fk_archive_id        varchar(255)     ,
+	FOREIGN KEY ( fk_archive_id ) REFERENCES ArchiveTable( archive_id ) ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY ( fk_record_id ) REFERENCES RecordTable( record_id ) ON DELETE CASCADE ON UPDATE CASCADE
+ );
 
 CREATE TABLE TokenTable (
 	token_id             varchar(255) NOT NULL    ,
