@@ -100,9 +100,34 @@ class Recorder(object):
         self.__device_index = value
 
 
-class Compressor(object):
-    pass
+def audio_processor(metadata_dict, base_path=None):
+    """
 
+    :param metadata_dict:
+    :param base_path:
+    :return:
+    """
+    if len(metadata_dict) == 0:
+        raise ValueError
 
-class Uploader(object):
-    pass
+    # Check and Prepare the Directory to store the Archive
+    archive_dir = datetime.now().strftime("%Y%m%d")
+    archive_base_dir = getcwd() if base_path is None else base_path
+
+    if not path.isdir(archive_base_dir):
+        makedirs(archive_base_dir)
+
+    archive_full_basedir = archive_base_dir + '/' + archive_dir
+    if not path.isdir(archive_full_basedir):
+        makedirs(archive_full_basedir)
+
+    # Create a zip_archive with all files
+    zip_file_name = archive_full_basedir + '/' + str(uuid4()) + '_' + \
+                    str(int(datetime.now().timestamp())) + '.zip'
+    with zipfile.ZipFile(zip_file_name, 'w') as zip_archive:
+        for element in metadata_dict.keys():
+            zip_archive.write(metadata_dict[element]['file_path'])
+            metadata_dict[element]['compressed'] = True
+            metadata_dict[element]['zip_archive'] = zip_file_name
+
+    return metadata_dict
