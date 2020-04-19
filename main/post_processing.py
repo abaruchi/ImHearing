@@ -2,13 +2,25 @@
 Implements routines and classes used to Audio Files Post-Processing
 """
 
-from datetime import datetime
 import zipfile
+from datetime import datetime
 from os import getcwd, makedirs, path
 from uuid import uuid4
 
+from main.utils.db import SQLQueries
 
-def audio_processor(metadata_dict, base_path=None):
+
+def db_register(metadata_to_register):
+    """
+    This routine can be used to register archive or records into DB
+    :return:
+    """
+
+    query_creator = SQLQueries()
+
+
+
+def audio_archive(metadata_dict, base_path=None):
     """
     Creates the Archives with audio files.
 
