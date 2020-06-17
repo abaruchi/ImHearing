@@ -14,8 +14,8 @@ def global_config(config_file=None):
     :return: Dict with all Global Configurations
     """
     if config_file is None:
-        config_file = getcwd().replace('Personal/ImHearing/ImHearing',
-                                       'Personal/ImHearing/config.ini')
+        config_file = getcwd().replace('ImHearing',
+                                       'ImHearing/config.ini')
 
     if not path.isfile(config_file):
         return 'File {} Not Found'.format(config_file), -1
@@ -31,8 +31,8 @@ def aws_config(config_file=None):
     :return: Dict with all AWS Configurations
     """
     if config_file is None:
-        config_file = getcwd().replace('Personal/ImHearing/ImHearing',
-                                       'Personal/ImHearing/config.ini')
+        config_file = getcwd().replace('ImHearing',
+                                       'ImHearing/config.ini')
 
     if not path.isfile(config_file):
         return 'File {} Not Found'.format(config_file), -1
@@ -48,8 +48,8 @@ def db_config(config_file=None):
     :return: Dict with all DB Configurations
     """
     if config_file is None:
-        config_file = getcwd().replace('Personal/ImHearing/ImHearing',
-                                       'Personal/ImHearing/config.ini')
+        config_file = getcwd().replace('ImHearing',
+                                       'ImHearing/config.ini')
 
     if not path.isfile(config_file):
         return 'File {} Not Found'.format(config_file), -1
