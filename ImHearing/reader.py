@@ -21,7 +21,7 @@ def global_config(config_file=None):
         return 'File {} Not Found'.format(config_file), -1
 
     config_parser.read(config_file)
-    return config_parser['GLOBAL']
+    return config_parser['GLOBAL'], len(config_parser['GLOBAL'])
 
 
 def aws_config(config_file=None):
@@ -38,7 +38,7 @@ def aws_config(config_file=None):
         return 'File {} Not Found'.format(config_file), -1
 
     config_parser.read(config_file)
-    return config_parser['AWS']
+    return config_parser['AWS'], len(config_parser['AWS'])
 
 
 def db_config(config_file=None):
@@ -55,4 +55,4 @@ def db_config(config_file=None):
         return 'File {} Not Found'.format(config_file), -1
 
     config_parser.read(config_file)
-    return config_parser['CONFIGDB']
+    return config_parser['CONFIGDB'], len(config_parser['CONFIGDB'])
