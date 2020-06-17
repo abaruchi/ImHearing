@@ -9,16 +9,6 @@ FORMATTER = logging.Formatter(
     "%(asctime)s — %(name)s — %(levelname)s — %(message)s")
 
 
-def get_console_handler():
-    """
-    Sends the Log to the Std Output set to the process
-    :return:
-    """
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(FORMATTER)
-    return console_handler
-
-
 def get_file_handler(log_file):
     """
     Sets a file handler to a given file
@@ -39,7 +29,6 @@ def get_logger(logger_name, log_file):
     """
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.DEBUG)
-    logger.addHandler(get_console_handler())
     logger.addHandler(get_file_handler(log_file))
 
     logger.propagate = False
