@@ -3,7 +3,7 @@
 
 import wave
 from datetime import datetime
-from os import getcwd, stat
+from os import stat
 from uuid import uuid4
 
 from pony.orm import db_session
