@@ -6,7 +6,7 @@ from signal import SIGINT, signal
 from pony.orm.dbapiprovider import DatabaseError
 
 from ImHearing import audio, logger, reader
-from ImHearing.database import models, query
+from ImHearing.database import models
 
 # Configurations Sections
 GLOBAL_CONFIG, global_ret = reader.global_config()
