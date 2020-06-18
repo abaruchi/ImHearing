@@ -56,7 +56,7 @@ def start_recording(db, global_config):
     time_end = datetime.now()
     # Finish the Recording
 
-    input_file = record_file
+    input_file = global_config['record_path'] + record_file
     wavefile = wave.open(input_file, 'wb')
     wavefile.setnchannels(CHANNELS)
     wavefile.setsampwidth(audio.get_sample_size(FORM_1))
