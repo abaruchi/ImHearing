@@ -3,14 +3,13 @@
 
 import wave
 from datetime import datetime
-from os import stat
+from os import path, stat
 from uuid import uuid4
 
 from pony.orm import db_session
 from pyaudio import PyAudio, paInt16
 
 from ImHearing import logger
-
 
 # Default Values to be used for recording
 CHUNK = 512
@@ -26,10 +25,14 @@ def start_recording(db, global_config):
     Main routine to perform environment records.
     :param db: DB Connection to Pony
     :param global_config: Global Configuration dict
-    :return: Record Object
+    :return: Record Object or -1 on error
     """
     audio_logger = logger.get_logger('ImHearing.audio',
                                      global_config['log_file'])
+
+    if not path.isfile(global_config['record_path']):
+        return -1
+    
     audio = PyAudio()
     frames = list()
     stream = audio.open(format=FORM_1,
