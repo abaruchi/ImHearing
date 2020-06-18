@@ -3,7 +3,7 @@
 
 from pony.orm.dbapiprovider import DatabaseError
 
-from ImHearing import logger, reader
+from ImHearing import audio, logger, reader
 from ImHearing.database import models, query
 
 # Configurations Sections
@@ -36,8 +36,15 @@ except DatabaseError as e:
 
 def main():
 
-    my_logger = logger.get_logger(__name__, GLOBAL_CONFIG['log_file'])
-    my_logger.info('A Info Message')
+    # 1: Check if all conditions to record is set
+    #  1.1: Check Budget (if true stop the process)
+    #  1.1: Check file system usage OR number of records (archive and send to
+    #                                                      AWS)
+    # 2. Start recording
+
+    ## Testing
+    for i in range(0, 3):
+        audio.start_recording(db, GLOBAL_CONFIG)
 
 
 if __name__ == '__main__':
