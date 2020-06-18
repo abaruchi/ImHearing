@@ -41,7 +41,7 @@ def exit_handler(signal_received, frame):
     We need to keep the DB consistent in case of a CTRL+C. Also, we perform the
     upload of remaining archives and a cleanup.
     """
-    my_logger = logger.get_logger("exit_handler")
+    my_logger = logger.get_logger("exit_handler", GLOBAL_CONFIG['log_file'])
     my_logger.info("Terminating - Reveived Signal {}".format(signal_received))
 
     # --> Archive Routine Here
@@ -50,9 +50,6 @@ def exit_handler(signal_received, frame):
 
 
 def main():
-
-    # Set Signal Handler
-    signal(SIGINT, exit_handler)
 
     # 1: Check if all conditions to record is set
     #  1.1: Check Budget (if true stop the process)
@@ -66,4 +63,5 @@ def main():
 
 
 if __name__ == '__main__':
+    signal(SIGINT, exit_handler)
     main()
