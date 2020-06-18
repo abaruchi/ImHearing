@@ -67,8 +67,8 @@ def start_recording(db, global_config):
     record_new = db.Record(
         start=time_start,
         end=time_end,
-        size=stat(record_file).st_size / (1024 * 1024),
-        path=record_file,
+        size=stat(input_file).st_size / (1024 * 1024),
+        path=input_file,
         status='recorded'
     )
 
