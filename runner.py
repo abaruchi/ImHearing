@@ -48,8 +48,8 @@ def exit_handler(signal_received, frame):
     post_recording.archive_records(db, GLOBAL_CONFIG)
 
     # --> Clean Up Routine Here
-    post_recording.remove_uploaded_records(db, GLOBAL_CONFIG)
-    post_recording.remove_uploaded_archives(db, GLOBAL_CONFIG)
+    post_recording.remove_uploaded_records(db)
+    post_recording.remove_uploaded_archives(db)
     exit(0)
 
 
