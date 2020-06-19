@@ -79,9 +79,9 @@ def main():
         if perform_cleanup_routines:
             # Archive, Upload & Remove Records & Archives
             post_recording.archive_records(db, GLOBAL_CONFIG)
-            post_recording.upload_archive(db, AWS_CONFIG, GLOBAL_CONFIG)
-            post_recording.remove_uploaded_archives(db, GLOBAL_CONFIG)
-            post_recording.remove_uploaded_records(db, GLOBAL_CONFIG)
+            post_recording.upload_archive(db, AWS_CONFIG)
+            post_recording.remove_uploaded_archives(db)
+            post_recording.remove_uploaded_records(db)
             main_logger.info(" -- Archive and Upload routines Finished -- ")
         else:
             record_obj = audio.start_recording(db, GLOBAL_CONFIG)
