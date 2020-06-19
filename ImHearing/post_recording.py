@@ -34,7 +34,6 @@ def remove_uploaded_records(db):
         if not record.removed and path.isfile(record_path):
             remove(record_path)
             record.removed = True
-            my_logger.info(" -- Record {} Removed".format(record.path))
             removed_records_list.append(record)
 
     return removed_records_list
