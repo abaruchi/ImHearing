@@ -22,7 +22,7 @@ def check_aws_budget(db, aws_config):
 
     # Get all Archives already uploaded to AWS
     archives_uploaded = query.get_archives_uploaded(db)
-    uploaded_gb = (sum(o.size for o in archives_uploaded) // 1024)
+    uploaded_gb = (sum(o.size for o in archives_uploaded) / 1024)
 
     current_amount = float(aws_config['price_per_gb']) * uploaded_gb
     return budget_max - current_amount
