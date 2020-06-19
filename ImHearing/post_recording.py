@@ -130,8 +130,6 @@ def upload_archive(db, aws_config):
                                    aws_config['s3_region'],
                                    str(archive.id))
             uploaded_archives.append(archive)
-            my_logger.info(" -- Archive {} Uploaded --".format(
-                archive.local_path))
         except (ConnectionError, EndpointConnectionError) as e:
             archive.uploaded = False
             archive.remote_path = ''
