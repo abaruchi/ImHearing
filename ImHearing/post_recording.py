@@ -1,8 +1,13 @@
 """ Routines to run after a record (or a set of records) is already in place
 """
 
-from os import path, remove
+import zipfile
+from datetime import datetime
+from os import path, remove, stat
+from uuid import uuid4
 
+from boto3 import resource
+from botocore.exceptions import ConnectionError, EndpointConnectionError
 from pony.orm import db_session
 
 from ImHearing import logger
@@ -73,17 +78,82 @@ def archive_records(db, global_config):
 
     :param db: DB Connection to Pony
     :param global_config: Global Configuration Dict
-    :return: 0 on success or -1 on error
+    :return: Archive Object or False on Error
     """
-    pass
+
+    list_records_to_archive = query.get_recorded_entries(db)
+
+    my_logger = logger.get_logger('ImHearing.post_recording',
+                                  global_config['log_file'])
+
+    if len(list_records_to_archive) == 0 or \
+            not path.isfile(global_config['archive_path']):
+        return False
+
+    archive_file = global_config['archive_path'] + \
+                   str(uuid4()) + '_' + \
+                   str(int(datetime.now().timestamp())) + '.zip'
+
+    archive_new = db.Archive(
+        creation=datetime.now(),
+        local_path=archive_file
+    )
+    with zipfile.ZipFile(archive_file, 'w') as zip_archive:
+        for record in list_records_to_archive:
+            zip_archive.write(record.path)
+            record.status = 'archived'
+            record.archive = archive_new
+        archive_new.size = stat(archive_file).st_size / (1024 * 1024)
+    my_logger.info(" -- Archive {} with {} Records Created --".format(
+        archive_file,
+        len(list_records_to_archive)
+    ))
+
+    return archive_new
 
 
 @db_session
-def upload_archive(db, global_config):
+def upload_archive(db, aws_config, global_config):
+    """
+    Routine to Upload Archive(s) to AWS S3
+    :param global_config:
+    :param aws_config: AWS Config Dict
+    :param db: DB Connection to Pony
+    :return: List of Archives Uploaded
     """
 
-    :param db: DB Connection to Pony
-    :param global_config: Global Configuration Dict
-    :return: 0 on success or -1 on error
-    """
-    pass
+    archives_to_upload = query.get_archives_not_uploaded(db)
+    uploaded_archives = list()
+
+    my_logger = logger.get_logger('ImHearing.post_recording',
+                                  global_config['log_file'])
+    if len(archives_to_upload) == 0:
+        return uploaded_archives
+
+    s3_resource = resource('s3')
+    for archive in archives_to_upload:
+        s3_obj = s3_resource.Object(
+            bucket_name=aws_config['s3_bucket_name'],
+            key=str(archive.id)
+        )
+        try:
+            s3_obj.upload_file(
+                Filename=archive.local_path
+            )
+            archive.uploaded = True
+            archive.remote_path = "https://s3-%s.amazonaws.com/%s/%s" % \
+                                  (aws_config['s3_bucket_name'],
+                                   aws_config['s3_region'],
+                                   str(archive.id))
+            uploaded_archives.append(archive)
+            my_logger.info(" -- Archive {} Uploaded --".format(
+                archive.local_path))
+        except (ConnectionError, EndpointConnectionError) as e:
+            archive.uploaded = False
+            archive.remote_path = ''
+            uploaded_archives.pop(-1)
+            my_logger.error(" -- Archive {} Not Uploaded --".format(
+                archive.local_path))
+            return upload_archive
+
+        return upload_archive
