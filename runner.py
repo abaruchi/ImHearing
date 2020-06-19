@@ -82,8 +82,12 @@ def main():
             post_recording.upload_archive(db, AWS_CONFIG, GLOBAL_CONFIG)
             post_recording.remove_uploaded_archives(db, GLOBAL_CONFIG)
             post_recording.remove_uploaded_records(db, GLOBAL_CONFIG)
+            main_logger.info(" -- Archive and Upload routines Finished -- ")
         else:
-            audio.start_recording(db, GLOBAL_CONFIG)
+            record_obj = audio.start_recording(db, GLOBAL_CONFIG)
+            main_logger.info(
+                " -- Record {} Finished -- ".format(record_obj.path)
+            )
 
 
 if __name__ == '__main__':
