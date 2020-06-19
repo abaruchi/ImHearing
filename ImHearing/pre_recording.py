@@ -1,8 +1,6 @@
 """ Routines check if conditions are satisfied before start recording
 """
 
-from shutil import disk_usage
-
 from pony.orm import db_session, sum
 
 from ImHearing.database import query
@@ -18,7 +16,7 @@ def check_aws_budget(db, aws_config):
             (negative)
     """
 
-    budget_max = int(aws_config['budget_cost'])
+    budget_max = float(aws_config['budget_cost'])
     if budget_max == 0:
         return float('Inf')
 
