@@ -77,7 +77,7 @@ def archive_records(db, global_config):
     list_records_to_archive = query.get_recorded_entries(db)
 
     if len(list_records_to_archive) == 0 or \
-            not path.isfile(global_config['archive_path']):
+            not path.isdir(global_config['archive_path']):
         return False
 
     archive_file = global_config['archive_path'] + \
