@@ -57,12 +57,13 @@ def main():
 
     main_logger = logger.get_logger("runner", GLOBAL_CONFIG['log_file'])
 
-    if pre_recording.check_aws_budget(db, AWS_CONFIG) < 0:
-        main_logger.error(
-            " -- AWS Budget {} exceeded -- ".format(AWS_CONFIG['budget_cost']))
-        exit(-1)
-
     while True:
+        if pre_recording.check_aws_budget(db, AWS_CONFIG) < 0:
+            main_logger.error(
+                " -- AWS Budget {} exceeded -- ".format(
+                    AWS_CONFIG['budget_cost']))
+            exit(-1)
+
         perform_cleanup_routines = False
         if pre_recording.check_fs_usage(db, GLOBAL_CONFIG) < 0:
             main_logger.error(
