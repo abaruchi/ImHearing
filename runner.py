@@ -66,13 +66,13 @@ def main():
 
         perform_cleanup_routines = False
         if pre_recording.check_fs_usage(db, GLOBAL_CONFIG) < 0:
-            main_logger.error(
-                " -- FS Usage Check, Exceeded {}% -- ".format(
+            main_logger.warning(
+                " -- FS Usage Check, Exceeded {}MB -- ".format(
                     GLOBAL_CONFIG['storage_usage']))
             perform_cleanup_routines = True
 
         if pre_recording.check_record_count(db, GLOBAL_CONFIG) < 0:
-            main_logger.error(
+            main_logger.warning(
                 " -- Record Count Check, Exceeded {} --".format(
                     GLOBAL_CONFIG['records_count']))
             perform_cleanup_routines = True
