@@ -28,7 +28,7 @@ def start_recording(db, global_config):
     :return: Record Object or -1 on error
     """
 
-    if not path.isfile(global_config['record_path']):
+    if not path.isdir(global_config['record_path']):
         return -1
     
     audio = PyAudio()
