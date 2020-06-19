@@ -45,14 +45,11 @@ def check_fs_usage(db, global_config):
     if max_fs_usage == 0:
         return float('Inf')
 
-    total_bytes, used_bytes, free_bytes = \
-        disk_usage(global_config['record_path'])
-
     # List of records in local disk
     local_records_list = query.get_local_record_files(db)
-    local_records_bytes = sum(o.size for o in local_records_list) * 1024 * 1024
+    local_records_mb = sum(o.size for o in local_records_list)
 
-    return ((total_bytes // local_records_bytes) * 100) - max_fs_usage
+    return max_fs_usage - local_records_mb
 
 
 @db_session
