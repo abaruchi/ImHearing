@@ -27,8 +27,6 @@ def start_recording(db, global_config):
     :param global_config: Global Configuration dict
     :return: Record Object or -1 on error
     """
-    audio_logger = logger.get_logger('ImHearing.audio',
-                                     global_config['log_file'])
 
     if not path.isfile(global_config['record_path']):
         return -1
@@ -46,8 +44,6 @@ def start_recording(db, global_config):
                          str(int(datetime.now().timestamp()))])
 
     # Start the Recording
-    audio_logger.info(' -- Record {} Started --'.format(
-        str(record_uuid)[35 - 11:]))
     time_start = datetime.now()
     for _ in range(0, (SAMPLE_RATE // CHUNK) * int(global_config['record_period'])):
         data = stream.read(CHUNK, exception_on_overflow=False)

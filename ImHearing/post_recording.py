@@ -10,12 +10,11 @@ from boto3 import resource
 from botocore.exceptions import ConnectionError, EndpointConnectionError
 from pony.orm import db_session
 
-from ImHearing import logger
 from ImHearing.database import query
 
 
 @db_session
-def remove_uploaded_records(db, global_config):
+def remove_uploaded_records(db):
     """
     Removes all records archived and uploaded.
     :param db: DB Connection to Pony
@@ -24,8 +23,6 @@ def remove_uploaded_records(db, global_config):
     """
 
     list_of_local_records = query.get_local_record_files(db)
-    my_logger = logger.get_logger('ImHearing.post_recording',
-                                  global_config['log_file'])
 
     if len(list_of_local_records) == 0:
         return 0
@@ -44,7 +41,7 @@ def remove_uploaded_records(db, global_config):
 
 
 @db_session
-def remove_uploaded_archives(db, global_config):
+def remove_uploaded_archives(db):
     """
     Remove all archives not uploaded yet.
     :param db: DB Connection to Pony
@@ -53,8 +50,6 @@ def remove_uploaded_archives(db, global_config):
     """
 
     list_of_local_archives = query.get_local_archive_files(db)
-    my_logger = logger.get_logger('ImHearing.post_recording',
-                                  global_config['log_file'])
 
     if len(list_of_local_archives) == 0:
         return 0
@@ -66,7 +61,6 @@ def remove_uploaded_archives(db, global_config):
         if not archive.removed and path.isfile(archive_path):
             remove(archive_path)
             archive.removed = True
-            my_logger.info(" -- Archive {} Removed --".format(archive_path))
             removed_archives_list.append(archive)
 
     return removed_archives_list
@@ -82,9 +76,6 @@ def archive_records(db, global_config):
     """
 
     list_records_to_archive = query.get_recorded_entries(db)
-
-    my_logger = logger.get_logger('ImHearing.post_recording',
-                                  global_config['log_file'])
 
     if len(list_records_to_archive) == 0 or \
             not path.isfile(global_config['archive_path']):
@@ -104,19 +95,14 @@ def archive_records(db, global_config):
             record.status = 'archived'
             record.archive = archive_new
         archive_new.size = stat(archive_file).st_size / (1024 * 1024)
-    my_logger.info(" -- Archive {} with {} Records Created --".format(
-        archive_file,
-        len(list_records_to_archive)
-    ))
 
     return archive_new
 
 
 @db_session
-def upload_archive(db, aws_config, global_config):
+def upload_archive(db, aws_config):
     """
     Routine to Upload Archive(s) to AWS S3
-    :param global_config:
     :param aws_config: AWS Config Dict
     :param db: DB Connection to Pony
     :return: List of Archives Uploaded
@@ -125,8 +111,6 @@ def upload_archive(db, aws_config, global_config):
     archives_to_upload = query.get_archives_not_uploaded(db)
     uploaded_archives = list()
 
-    my_logger = logger.get_logger('ImHearing.post_recording',
-                                  global_config['log_file'])
     if len(archives_to_upload) == 0:
         return uploaded_archives
 
@@ -152,8 +136,6 @@ def upload_archive(db, aws_config, global_config):
             archive.uploaded = False
             archive.remote_path = ''
             uploaded_archives.pop(-1)
-            my_logger.error(" -- Archive {} Not Uploaded --".format(
-                archive.local_path))
             return upload_archive
 
         return upload_archive
