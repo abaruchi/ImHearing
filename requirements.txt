@@ -1,2 +1,6 @@
+pyaudio
+boto3
+botocore
 ably==1.1.1
 wave==0.0.2
+pony
