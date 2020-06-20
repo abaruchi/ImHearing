@@ -1,6 +1,8 @@
 """ Main file with routines to run Listener
 """
 
+import random
+import time
 from signal import SIGINT, signal
 
 from pony.orm.dbapiprovider import DatabaseError
@@ -80,7 +82,24 @@ def main():
         if perform_cleanup_routines:
             # Archive, Upload & Remove Records & Archives
             post_recording.archive_records(db, GLOBAL_CONFIG)
-            post_recording.upload_archive(db, AWS_CONFIG)
+
+            # Uploading check
+            up_arch = post_recording.upload_archive(db, AWS_CONFIG)
+            up_count = 0
+            while up_arch is False and up_count <= 10:
+                wait_time = random.randint(10, 90)
+                main_logger.info(
+                    " -- Retrying Upload in {} sec due to Error --".format(
+                        wait_time))
+                time.sleep(wait_time)
+                up_arch = post_recording.upload_archive(db, AWS_CONFIG)
+                up_count += 1
+            if up_count > 10:
+                main_logger.info(
+                    " -- Terminating due to exceeded timeouts --"
+                )
+                exit(-1)
+
             post_recording.remove_uploaded_archives(db)
             post_recording.remove_uploaded_records(db)
             main_logger.info(" -- Archive and Upload routines Finished -- ")
