@@ -9,7 +9,6 @@ from uuid import uuid4
 from pony.orm import db_session
 from pyaudio import PyAudio, paInt16
 
-from ImHearing import logger
 
 # Default Values to be used for recording
 CHUNK = 512
