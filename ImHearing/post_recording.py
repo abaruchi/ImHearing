@@ -18,7 +18,6 @@ def remove_uploaded_records(db):
     """
     Removes all records archived and uploaded.
     :param db: DB Connection to Pony
-    :param global_config: Global Configuration Dict
     :return: List of Records removed
     """
 
@@ -44,7 +43,6 @@ def remove_uploaded_archives(db):
     """
     Remove all archives not uploaded yet.
     :param db: DB Connection to Pony
-    :param global_config: Global Configuration Dict
     :return: List of removed Archives
     """
 
@@ -68,7 +66,7 @@ def remove_uploaded_archives(db):
 @db_session
 def archive_records(db, global_config):
     """
-
+    Adds record(s) to a ZIP Archive to upload to Amazon S3.
     :param db: DB Connection to Pony
     :param global_config: Global Configuration Dict
     :return: Archive Object or False on Error
@@ -108,10 +106,9 @@ def upload_archive(db, aws_config):
     """
 
     archives_to_upload = query.get_archives_not_uploaded(db)
-    uploaded_archives = list()
 
     if len(archives_to_upload) == 0:
-        return uploaded_archives
+        return True
 
     s3_resource = resource('s3')
     for archive in archives_to_upload:
@@ -128,11 +125,9 @@ def upload_archive(db, aws_config):
                                   (aws_config['s3_bucket_name'],
                                    aws_config['s3_region'],
                                    str(archive.id))
-            uploaded_archives.append(archive)
         except (ConnectionError, EndpointConnectionError) as e:
             archive.uploaded = False
             archive.remote_path = ''
-            uploaded_archives.pop(-1)
-            return upload_archive
+            return False
 
-        return upload_archive
+        return True
