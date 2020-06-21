@@ -3,7 +3,6 @@
 
 import asyncio
 import random
-import time
 from signal import SIGINT, signal
 
 from pony.orm.dbapiprovider import DatabaseError
@@ -56,21 +55,17 @@ def exit_handler(signal_received, frame):
     exit(0)
 
 
-async def run_post_processing(queue_name):
-    """
+async def processing():
 
-    :param queue_name:
-    :return:
-    """
-    await queue_name.get()
-
+    # Archive, Upload & Remove Records & Archives
     post_recording.archive_records(db, GLOBAL_CONFIG)
 
+    # Uploading check
     up_arch = post_recording.upload_archive(db, AWS_CONFIG)
     up_count = 0
     while up_arch is False and up_count <= 10:
         wait_time = random.randint(10, 90)
-        time.sleep(wait_time)
+        await asyncio.sleep(wait_time)
         up_arch = post_recording.upload_archive(db, AWS_CONFIG)
         up_count += 1
     if up_count > 10:
@@ -83,7 +78,6 @@ async def run_post_processing(queue_name):
 async def main():
 
     main_logger = logger.get_logger("runner", GLOBAL_CONFIG['log_file'])
-    my_queue = asyncio.Queue()
 
     while True:
         if pre_recording.check_aws_budget(db, AWS_CONFIG) < 0:
@@ -93,6 +87,7 @@ async def main():
             exit(-1)
 
         perform_cleanup_routines = False
+
         if pre_recording.check_fs_usage(db, GLOBAL_CONFIG) < 0:
             main_logger.warning(
                 " -- FS Usage Check, Exceeded {}MB -- ".format(
@@ -105,21 +100,16 @@ async def main():
                     GLOBAL_CONFIG['records_count']))
             perform_cleanup_routines = True
 
-        # Do async tasks
         if perform_cleanup_routines:
-            task_id = str(random.randrange(0, 100000)).zfill(6)
             main_logger.info(
-                " -- Adding Task ID {} to Queue -- ".format(task_id)
+                " -- Starting Routines to CleanUP and Uploading --"
             )
-            my_queue.put_nowait(task_id)
-
-            # Create a Task to handle
-            asyncio.create_task(run_post_processing(my_queue))
-
-        record_obj = audio.start_recording(db, GLOBAL_CONFIG)
-        main_logger.info(
-            " -- Record {} Finished -- ".format(record_obj.path)
-        )
+            await processing()
+        else:
+            record_obj = audio.start_recording(db, GLOBAL_CONFIG)
+            main_logger.info(
+                " -- Record {} Finished -- ".format(record_obj.path)
+            )
 
 
 if __name__ == '__main__':
