@@ -62,15 +62,12 @@ def exit_handler(signal_received, frame):
 
 def processing():
 
-    consumer_logging = logger.get_logger("processing",
-                                         GLOBAL_CONFIG['log_file'])
-
     while True:
         if not task_queue.empty():
+            consumer_log = logger.get_logger("processing",
+                                             GLOBAL_CONFIG['log_file'])
             task_id = task_queue.get()
-            consumer_logging.info(
-                " -- Processing Task ID {} -- ".format(task_id)
-            )
+            consumer_log.info(" -- Processing Task {}".format(task_id))
 
             # Archive, Upload & Remove Records & Archives
             post_recording.archive_records(db, GLOBAL_CONFIG)
@@ -88,6 +85,7 @@ def processing():
 
             post_recording.remove_uploaded_archives(db)
             post_recording.remove_uploaded_records(db)
+            task_queue.task_done()
 
 
 def main():
@@ -133,5 +131,5 @@ if __name__ == '__main__':
     producer_thread = threading.Thread(target=main)
     consumer_thread = threading.Thread(target=processing)
 
-    producer_thread.run()
-    consumer_thread.run()
+    producer_thread.start()
+    consumer_thread.start()
