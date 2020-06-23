@@ -198,4 +198,6 @@ dmypy.json
 # Do not upload DB to Git
 SQLiteDB/*.db
 
+config.ini
+
 # End of https://www.gitignore.io/api/python,pycharm
