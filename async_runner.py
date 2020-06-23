@@ -105,11 +105,11 @@ async def main():
                 " -- Starting Routines to CleanUP and Uploading --"
             )
             await processing()
-        else:
-            record_obj = audio.start_recording(db, GLOBAL_CONFIG)
-            main_logger.info(
-                " -- Record {} Finished -- ".format(record_obj.path)
-            )
+
+        record_obj = audio.start_recording(db, GLOBAL_CONFIG)
+        main_logger.info(
+            " -- Record {} Finished -- ".format(record_obj.path)
+        )
 
 
 if __name__ == '__main__':
