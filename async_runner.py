@@ -18,7 +18,7 @@ AWS_CONFIG, aws_ret = reader.aws_config()
 DB_CONFIG, db_ret = reader.db_config()
 
 # Queue for Threads
-task_queue = Queue()
+task_queue = Queue(maxsize=1)
 
 if global_ret < 0 or aws_ret < 0 or db_ret < 0:
     print("-- Some Error Found when Reading Config File --")
@@ -115,7 +115,7 @@ def main():
                     GLOBAL_CONFIG['records_count']))
             perform_cleanup_routines = True
 
-        if perform_cleanup_routines:
+        if perform_cleanup_routines and not task_queue.full():
             main_logger.info(
                 " -- Starting CleanUP and Uploading Thread --"
             )
