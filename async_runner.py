@@ -65,28 +65,29 @@ def processing():
     consumer_logging = logger.get_logger("processing",
                                          GLOBAL_CONFIG['log_file'])
 
-    while not task_queue.empty():
-        task_id = task_queue.get()
-        consumer_logging.info(
-            " -- Processing Task ID {} -- ".format(task_id)
-        )
+    while True:
+        if not task_queue.empty():
+            task_id = task_queue.get()
+            consumer_logging.info(
+                " -- Processing Task ID {} -- ".format(task_id)
+            )
 
-        # Archive, Upload & Remove Records & Archives
-        post_recording.archive_records(db, GLOBAL_CONFIG)
+            # Archive, Upload & Remove Records & Archives
+            post_recording.archive_records(db, GLOBAL_CONFIG)
 
-        # Uploading check
-        up_arch = post_recording.upload_archive(db, AWS_CONFIG)
-        up_count = 0
-        while up_arch is False and up_count <= 10:
-            wait_time = random.randint(10, 90)
-            time.sleep(wait_time)
+            # Uploading check
             up_arch = post_recording.upload_archive(db, AWS_CONFIG)
-            up_count += 1
-        if up_count > 10:
-            exit(-1)
+            up_count = 0
+            while up_arch is False and up_count <= 10:
+                wait_time = random.randint(10, 90)
+                time.sleep(wait_time)
+                up_arch = post_recording.upload_archive(db, AWS_CONFIG)
+                up_count += 1
+            if up_count > 10:
+                exit(-1)
 
-        post_recording.remove_uploaded_archives(db)
-        post_recording.remove_uploaded_records(db)
+            post_recording.remove_uploaded_archives(db)
+            post_recording.remove_uploaded_records(db)
 
 
 def main():
@@ -120,8 +121,6 @@ def main():
             )
             task_id = str(random.randrange(0, 100000)).zfill(6)
             task_queue.put(task_id)
-            consumer_thread = threading.Thread(target=processing)
-            consumer_thread.run()
 
         record_obj = audio.start_recording(db, GLOBAL_CONFIG)
         main_logger.info(
@@ -131,4 +130,8 @@ def main():
 
 if __name__ == '__main__':
     signal(SIGINT, exit_handler)
-    main()
+    producer_thread = threading.Thread(target=main)
+    consumer_thread = threading.Thread(target=processing)
+
+    producer_thread.run()
+    consumer_thread.run()
