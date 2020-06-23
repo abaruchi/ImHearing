@@ -1,8 +1,10 @@
 """ Main file with routines to run Listener
 """
 
-import asyncio
 import random
+import threading
+import time
+from queue import Queue
 from signal import SIGINT, signal
 
 from pony.orm.dbapiprovider import DatabaseError
@@ -14,6 +16,9 @@ from ImHearing.database import models
 GLOBAL_CONFIG, global_ret = reader.global_config()
 AWS_CONFIG, aws_ret = reader.aws_config()
 DB_CONFIG, db_ret = reader.db_config()
+
+# Queue for Threads
+task_queue = Queue()
 
 if global_ret < 0 or aws_ret < 0 or db_ret < 0:
     print("-- Some Error Found when Reading Config File --")
@@ -55,27 +60,36 @@ def exit_handler(signal_received, frame):
     exit(0)
 
 
-async def processing():
+def processing():
 
-    # Archive, Upload & Remove Records & Archives
-    post_recording.archive_records(db, GLOBAL_CONFIG)
+    consumer_logging = logger.get_logger("processing",
+                                         GLOBAL_CONFIG['log_file'])
 
-    # Uploading check
-    up_arch = post_recording.upload_archive(db, AWS_CONFIG)
-    up_count = 0
-    while up_arch is False and up_count <= 10:
-        wait_time = random.randint(10, 90)
-        await asyncio.sleep(wait_time)
+    while not task_queue.empty():
+        task_id = task_queue.get()
+        consumer_logging.info(
+            " -- Processing Task ID {} -- ".format(task_id)
+        )
+
+        # Archive, Upload & Remove Records & Archives
+        post_recording.archive_records(db, GLOBAL_CONFIG)
+
+        # Uploading check
         up_arch = post_recording.upload_archive(db, AWS_CONFIG)
-        up_count += 1
-    if up_count > 10:
-        exit(-1)
+        up_count = 0
+        while up_arch is False and up_count <= 10:
+            wait_time = random.randint(10, 90)
+            time.sleep(wait_time)
+            up_arch = post_recording.upload_archive(db, AWS_CONFIG)
+            up_count += 1
+        if up_count > 10:
+            exit(-1)
 
-    post_recording.remove_uploaded_archives(db)
-    post_recording.remove_uploaded_records(db)
+        post_recording.remove_uploaded_archives(db)
+        post_recording.remove_uploaded_records(db)
 
 
-async def main():
+def main():
 
     main_logger = logger.get_logger("runner", GLOBAL_CONFIG['log_file'])
 
@@ -102,9 +116,12 @@ async def main():
 
         if perform_cleanup_routines:
             main_logger.info(
-                " -- Starting Routines to CleanUP and Uploading --"
+                " -- Starting CleanUP and Uploading Thread --"
             )
-            await processing()
+            task_id = str(random.randrange(0, 100000)).zfill(6)
+            task_queue.put(task_id)
+            consumer_thread = threading.Thread(target=processing)
+            consumer_thread.run()
 
         record_obj = audio.start_recording(db, GLOBAL_CONFIG)
         main_logger.info(
@@ -114,4 +131,4 @@ async def main():
 
 if __name__ == '__main__':
     signal(SIGINT, exit_handler)
-    asyncio.run(main())
+    main()
