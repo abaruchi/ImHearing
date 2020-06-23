@@ -61,14 +61,13 @@ def exit_handler(signal_received, frame):
 
 
 def processing():
+    """
+    This routine is the main consumer to the Queue. Every time an item is added
+    to the Queue, this routine consumes it.
+    """
 
     while True:
         if not task_queue.empty():
-            consumer_log = logger.get_logger("processing",
-                                             GLOBAL_CONFIG['log_file'])
-            task_id = task_queue.get()
-            consumer_log.info(" -- Processing Task {}".format(task_id))
-
             # Archive, Upload & Remove Records & Archives
             post_recording.archive_records(db, GLOBAL_CONFIG)
 
@@ -119,6 +118,9 @@ def main():
             )
             task_id = str(random.randrange(0, 100000)).zfill(6)
             task_queue.put(task_id)
+            main_logger.info(
+                " -- Queueing Task {} -- ".format(task_id)
+            )
 
         record_obj = audio.start_recording(db, GLOBAL_CONFIG)
         main_logger.info(
@@ -128,8 +130,7 @@ def main():
 
 if __name__ == '__main__':
     signal(SIGINT, exit_handler)
-    producer_thread = threading.Thread(target=main)
     consumer_thread = threading.Thread(target=processing)
-
-    producer_thread.start()
+    consumer_thread.setDaemon(True)
     consumer_thread.start()
+    main()
