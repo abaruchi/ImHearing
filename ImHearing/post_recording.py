@@ -6,6 +6,7 @@ from datetime import datetime
 from os import path, remove, stat
 from uuid import uuid4
 
+import aioboto3
 from boto3 import resource
 from botocore.exceptions import ConnectionError, EndpointConnectionError
 from pony.orm import db_session
@@ -97,7 +98,7 @@ def archive_records(db, global_config):
 
 
 @db_session
-def upload_archive(db, aws_config):
+async def upload_archive(db, aws_config):
     """
     Routine to Upload Archive(s) to AWS S3
     :param aws_config: AWS Config Dict
@@ -110,24 +111,17 @@ def upload_archive(db, aws_config):
     if len(archives_to_upload) == 0:
         return True
 
-    s3_resource = resource('s3')
     for archive in archives_to_upload:
-        s3_obj = s3_resource.Object(
-            bucket_name=aws_config['s3_bucket_name'],
-            key=str(archive.id)
-        )
-        try:
-            s3_obj.upload_file(
-                Filename=archive.local_path
-            )
-            archive.uploaded = True
-            archive.remote_path = "https://s3-%s.amazonaws.com/%s/%s" % \
-                                  (aws_config['s3_bucket_name'],
-                                   aws_config['s3_region'],
-                                   str(archive.id))
-        except (ConnectionError, EndpointConnectionError) as e:
-            archive.uploaded = False
-            archive.remote_path = ''
-            return False
-
-        return True
+        async with aioboto3.resource("s3") as s3:
+            file_obj = open(archive.local_path, "rb")
+            try:
+                await s3.upload_fileobj(
+                    file_obj,
+                    aws_config['s3_bucket_name'],
+                    str(archive.id)
+                )
+            except (ConnectionError, EndpointConnectionError) as e:
+                archive.uploaded = False
+                archive.remote_path = ''
+                return False
+    return True
