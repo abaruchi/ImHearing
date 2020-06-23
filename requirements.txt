@@ -4,3 +4,4 @@ botocore
 ably==1.1.1
 wave==0.0.2
 pony
+aioboto3==8.0.3
