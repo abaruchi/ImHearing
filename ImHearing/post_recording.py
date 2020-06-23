@@ -88,9 +88,11 @@ def archive_records(db, global_config):
     )
     with zipfile.ZipFile(archive_file, 'w') as zip_archive:
         for record in list_records_to_archive:
-            zip_archive.write(record.path)
-            record.status = 'archived'
-            record.archive = archive_new
+            # Check the existence of file - Necessary check for Multithreading
+            if path.isfile(record.path):
+                zip_archive.write(record.path)
+                record.status = 'archived'
+                record.archive = archive_new
         archive_new.size = stat(archive_file).st_size / (1024 * 1024)
 
     return archive_new
