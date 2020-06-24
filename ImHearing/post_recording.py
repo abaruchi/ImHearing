@@ -7,7 +7,6 @@ from os import path, remove, stat
 from uuid import uuid4
 
 import aioboto3
-from boto3 import resource
 from botocore.exceptions import ConnectionError, EndpointConnectionError
 from pony.orm import db_session
 
