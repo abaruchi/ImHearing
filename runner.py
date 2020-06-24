@@ -1,7 +1,6 @@
 """ Main file with routines to run Listener
 """
 
-import asyncio
 import random
 import time
 from signal import SIGINT, signal
