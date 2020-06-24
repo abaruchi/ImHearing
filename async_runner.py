@@ -132,5 +132,8 @@ if __name__ == '__main__':
     signal(SIGINT, exit_handler)
     consumer_thread = threading.Thread(target=processing)
     consumer_thread.setDaemon(True)
+    producer_thread = threading.Thread(target=main)
+
+    # Start Threads
     consumer_thread.start()
-    main()
+    producer_thread.start()
