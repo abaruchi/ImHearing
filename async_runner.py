@@ -68,6 +68,9 @@ def processing():
 
     while True:
         if not task_queue.empty():
+            # Removes task from queue
+            task_queue.get()
+
             # Archive, Upload & Remove Records & Archives
             post_recording.archive_records(db, GLOBAL_CONFIG)
 
@@ -131,9 +134,7 @@ def main():
 if __name__ == '__main__':
     signal(SIGINT, exit_handler)
     consumer_thread = threading.Thread(target=processing)
-    consumer_thread.setDaemon(True)
-    producer_thread = threading.Thread(target=main)
 
     # Start Threads
     consumer_thread.start()
-    producer_thread.start()
+    main()
