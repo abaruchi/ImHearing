@@ -68,9 +68,6 @@ def processing():
 
     while True:
         if not task_queue.empty():
-            # Removes task from queue
-            task_queue.get()
-
             # Archive, Upload & Remove Records & Archives
             post_recording.archive_records(db, GLOBAL_CONFIG)
 
@@ -87,7 +84,9 @@ def processing():
 
             post_recording.remove_uploaded_archives(db)
             post_recording.remove_uploaded_records(db)
-            task_queue.task_done()
+
+            # Removes task from queue after finishing all tasks
+            task_queue.get()
 
 
 def main():
