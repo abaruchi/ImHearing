@@ -5,7 +5,7 @@
 ## Contents
 1. [Introduction](#introduction)
 2. [How to Install & Use](#how-to-install-and-use)
-3. [Implementation Details](#implementation-details)
+3. [Overall Architecture](#overall-architecture)
 4. [How to Contribute](#How-to-contribute)
 5. [References](#references)
 
@@ -51,7 +51,7 @@ more details, please refer to item 1 in [References](#references).
 
 ---
 
-Before installing, be aware that Im using Python 3.7 to develop. For now, I don't think
+Before installing, be aware that Im using Python 3.7 for developing. For now, I don't think
 it is a problem, since this project is not using any `asyncio` new features, but
 in future versions, my intention is to use it. Let's start:
 
@@ -78,8 +78,58 @@ Change the parameters according to your needs. Note that this file contains
 a configuration to AWS, so make sure you configured AWS Cli (refer to item 2
 in [References](#references)). 
 
+After the installation and configuration, you can start the script running the 
+runner script. There are two versions of it, a sequential version (`runner.py`)
+and a version which is using threads (`async_runner.py`). You can run it as
+follow: 
+
+Thread Version:
+```bash
+python async_runner.py
+```
+
+Sequential Version:
+```bash
+python runner.py
+```
+
+The script will log finished records and when it starts to archive and 
+upload. 
+
+```bash
+tail -f /var/log/Imhearing.log
+```
+
+
+## Overall Architecture
+
+The overall architecture is presented in Figure bellow. Basically the Raspberry
+records and send a set of records (in a ZIP Archive) to the cloud. This can be
+accessed to other clients (or devices) later using some API. My initial idea is
+to allow queries and get the S3 remote path using Ably API (item 4 in [References](#references)).
+
+![Overall Architecture](ImHearing/docs/images/readme_arch_overall.png)
+
+For more details about how it is implemented (mainly ORM and Multithreading) I 
+created specific documentations ([ORM](ImHearing/docs/ORM_Sqlite.md) and 
+[Multithreading](ImHearing/docs/Multithreading.md)).
+
+
+## How to Contribute
+
+As any Open Source project, you can contribute solving issues, reporting bugs 
+and improvements. Just clone the repo and submit your pull request to me. Since 
+it is a project that Im coding in my free time, this will not be as fast as I wish.
+
+Also, I usually add some issues to keep tracking of things that I would like to
+implement or improve. Feel free to get this issues and implement. The idea of this
+project is just practice coding skills, system designs and other subjects that 
+you have learned.
+
 
 ## References
 
 1. [Configuring MIC in RaspiberryPI](https://raspberrytips.com/add-microphone-raspberry-pi/)
 2. [Configuring AWS CLI in Linux](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
+3. [Pony ORM](https://ponyorm.org/)
+4. [Ably API](https://www.ably.io/)
