@@ -240,6 +240,9 @@ class TestQueries(unittest.TestCase):
         start_date_04 = '2020-01-01'
         end_date_04 = '2025-01-02'
 
+        start_date_05 = '2021-01-01'
+        end_date_05 = '2021-01-03'
+
         # Should return Record 01 and Record 02
         q_01 = get_record_by_date(self.db_test, start_date_01, end_date_01,
                                   timez='America/Santiago')
@@ -273,3 +276,48 @@ class TestQueries(unittest.TestCase):
         self.assertTrue(q_04.get(str(self.record_07.id)))
         self.assertTrue(q_04.get(str(self.record_08.id)))
         self.assertTrue(q_04.get(str(self.record_09.id)))
+
+        # Should Return ALL Records
+        q_05 = get_record_by_date(self.db_test, start_date_04,
+                                  timez='America/Santiago')
+        self.assertTrue(q_05.get(str(self.record_01.id)))
+        self.assertTrue(q_05.get(str(self.record_02.id)))
+        self.assertTrue(q_05.get(str(self.record_03.id)))
+        self.assertTrue(q_05.get(str(self.record_04.id)))
+        self.assertTrue(q_05.get(str(self.record_05.id)))
+        self.assertTrue(q_05.get(str(self.record_06.id)))
+        self.assertTrue(q_05.get(str(self.record_07.id)))
+        self.assertTrue(q_05.get(str(self.record_08.id)))
+        self.assertTrue(q_05.get(str(self.record_09.id)))
+
+        # Should Return ALL Records
+        q_06 = get_record_by_date(self.db_test,
+                                  end_datetime=end_date_04,
+                                  timez='America/Santiago')
+        self.assertTrue(q_06.get(str(self.record_01.id)))
+        self.assertTrue(q_06.get(str(self.record_02.id)))
+        self.assertTrue(q_06.get(str(self.record_03.id)))
+        self.assertTrue(q_06.get(str(self.record_04.id)))
+        self.assertTrue(q_06.get(str(self.record_05.id)))
+        self.assertTrue(q_06.get(str(self.record_06.id)))
+        self.assertTrue(q_06.get(str(self.record_07.id)))
+        self.assertTrue(q_06.get(str(self.record_08.id)))
+        self.assertTrue(q_06.get(str(self.record_09.id)))
+
+        # Shouldn't return any record (empty dict)
+        q_07 = get_record_by_date(self.db_test,
+                                  None, None, timez='America/Santiago')
+        self.assertEqual(
+            len(q_07),
+            0
+        )
+
+        # Shouldn't return any record (empty dict)
+        q_08 = get_record_by_date(self.db_test,
+                                  start_date_05,
+                                  end_date_05, timez='America/Santiago')
+        self.assertEqual(
+            len(q_08),
+            0
+        )
+
