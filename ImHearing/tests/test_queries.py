@@ -5,13 +5,13 @@ import datetime
 import unittest
 from enum import Enum
 
-import pytz
 from pony.orm import db_session
 
 from ImHearing.database.models import define_db
 from ImHearing.database.query import (
-    get_archives_not_uploaded, get_archives_uploaded, get_local_archive_files, get_local_record_files,
-    get_record_by_date, get_recorded_entries, get_records_from_archive, get_records_uploaded)
+    get_archives_not_uploaded, get_archives_uploaded, get_local_archive_files,
+    get_local_record_files, get_record_by_date, get_recorded_entries,
+    get_records_from_archive, get_records_uploaded)
 
 
 class RecordStatus(Enum):
@@ -320,4 +320,3 @@ class TestQueries(unittest.TestCase):
             len(q_08),
             0
         )
-
