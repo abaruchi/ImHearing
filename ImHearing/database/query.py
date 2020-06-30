@@ -125,7 +125,8 @@ def get_record_by_date(db, start_datetime=None,
     else:
         records_list = select(
             il for il in db.Record if
-            il.start >= td_query_start and il.end <= td_query_end
+            (il.start >= td_query_start and il.start <= td_query_end) or
+            (il.end >= td_query_start and il.start <= td_query_start)
         )
 
     if len(records_list) == 0:
