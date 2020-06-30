@@ -1,6 +1,6 @@
 # Im Hearing
 
-[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php) ![TestPipeline](https://github.com/abaruchi/ImHearing/workflows/TestPipeline/badge.svg?event=push)
+[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php) ![TestPipeline](https://github.com/abaruchi/ImHearing/workflows/TestPipeline/badge.svg?event=push) [![codecov](https://codecov.io/gh/abaruchi/ImHearing/branch/master/graph/badge.svg)](https://codecov.io/gh/abaruchi/ImHearing)
 
 ## Contents
 1. [Introduction](#introduction)
