@@ -274,4 +274,3 @@ class TestQueries(unittest.TestCase):
             2,
             len(get_archives_uploaded(self.db_test))
         )
-
