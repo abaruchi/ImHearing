@@ -76,6 +76,53 @@ class TestQueries(unittest.TestCase):
             f.close()
 
     @db_session
+    def __creates_records_to_remove(self):
+        self.archive_local_fs = self.db_test.Archive(
+            creation=self.initial_date + (60 * self.time_to_add),
+            local_path='./archive_01.zip',
+            size=self.record_size_mb * 3,
+            remote_path='',
+            uploaded=True,
+            removed=False
+        )
+
+        self.record_in_fs_01 = self.db_test.Record(
+            start=self.initial_date + (6 * self.time_to_add),
+            end=self.initial_date + (7 * self.time_to_add),
+            size=self.record_size_mb,
+            path='./record_in_fs_01.wav',
+            status=RecordStatus(2).name,
+            removed=False,
+            archive=self.archive_local_fs
+        )
+
+        self.record_in_fs_02 = self.db_test.Record(
+            start=self.initial_date + (7 * self.time_to_add),
+            end=self.initial_date + (8 * self.time_to_add),
+            size=self.record_size_mb,
+            path='./record_in_fs_02.wav',
+            status=RecordStatus(2).name,
+            removed=False,
+            archive=self.archive_local_fs
+        )
+
+        self.record_in_fs_03 = self.db_test.Record(
+            start=self.initial_date + (8 * self.time_to_add),
+            end=self.initial_date + (9 * self.time_to_add),
+            size=self.record_size_mb,
+            path='./record_in_fs_03.wav',
+            status=RecordStatus(2).name,
+            removed=False,
+            archive=self.archive_local_fs
+        )
+
+        for file in ['./record_in_fs_01.wav',
+                     './record_in_fs_02.wav',
+                     './record_in_fs_03.wav']:
+            f = open(file, "w+")
+            f.close()
+
+    @db_session
     def __creates_archives(self):
         # Archive 01 - Already Uploaded and Removed
         self.archive_01 = self.db_test.Archive(
@@ -101,8 +148,6 @@ class TestQueries(unittest.TestCase):
 
     @db_session
     def test_archive_records(self):
-        self.__creates_records_without_archives()
-
         config_01 = {
             'GLOBAL': {
                 'record_path': '.',
@@ -113,6 +158,11 @@ class TestQueries(unittest.TestCase):
                 'record_period': '30'
             }
         }
+        self.assertFalse(
+            post_recording.archive_records(self.db_test, config_01['GLOBAL'])
+        )
+
+        self.__creates_records_without_archives()
 
         # Must appear 3 records
         local_records = get_recorded_entries(self.db_test)
@@ -139,6 +189,13 @@ class TestQueries(unittest.TestCase):
 
     @db_session
     def test_remove_uploaded_archives(self):
+
+        # Must return Zero when there is no Archive to Upload
+        self.assertEqual(
+            post_recording.remove_uploaded_archives(self.db_test),
+            0
+        )
+
         self.__creates_archives()
 
         self.assertTrue(
@@ -152,4 +209,29 @@ class TestQueries(unittest.TestCase):
         )
         self.assertFalse(
             path.isfile(self.archive_02.local_path)
+        )
+
+    @db_session
+    def test_remove_uploaded_records(self):
+
+        # Must return Zero when there is no Archive to Upload
+        self.assertEqual(
+            post_recording.remove_uploaded_records(self.db_test),
+            0
+        )
+
+        self.__creates_records_to_remove()
+        removed_records = post_recording.remove_uploaded_records(self.db_test)
+
+        self.assertIn(
+            self.record_in_fs_01,
+            removed_records
+        )
+        self.assertIn(
+            self.record_in_fs_02,
+            removed_records
+        )
+        self.assertIn(
+            self.record_in_fs_03,
+            removed_records
         )
