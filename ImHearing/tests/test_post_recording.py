@@ -4,13 +4,16 @@
 import datetime
 import unittest
 from enum import Enum
+from os import path, remove
 
-from os import remove, path
+from moto import mock_s3
+import boto3
 from pony.orm import db_session
 
-from ImHearing.database.models import define_db
-from ImHearing.database.query import get_recorded_entries
 from ImHearing import post_recording
+from ImHearing.database.models import define_db
+from ImHearing.database.query import (get_recorded_entries,
+                                      get_archives_uploaded)
 
 
 class RecordStatus(Enum):
@@ -41,7 +44,7 @@ class TestQueries(unittest.TestCase):
         self.db_test.drop_all_tables(with_all_data=True)
 
     @db_session
-    def __creates_records_without_archives(self):
+    def __creates_records_without_archives(self, create_files=True):
         self.record_without_arch_01 = self.db_test.Record(
             start=self.initial_date + (6 * self.time_to_add),
             end=self.initial_date + (7 * self.time_to_add),
@@ -69,14 +72,15 @@ class TestQueries(unittest.TestCase):
             removed=False
         )
 
-        for file in ['./record_without_arch_01.wav',
-                     './record_without_arch_02.wav',
-                     './record_without_arch_03.wav']:
-            f = open(file, "w+")
-            f.close()
+        if create_files:
+            for file in ['./record_without_arch_01.wav',
+                         './record_without_arch_02.wav',
+                         './record_without_arch_03.wav']:
+                f = open(file, "w+")
+                f.close()
 
     @db_session
-    def __creates_records_to_remove(self):
+    def __creates_records_to_remove(self, create_files=True):
         self.archive_local_fs = self.db_test.Archive(
             creation=self.initial_date + (60 * self.time_to_add),
             local_path='./archive_01.zip',
@@ -116,14 +120,15 @@ class TestQueries(unittest.TestCase):
             archive=self.archive_local_fs
         )
 
-        for file in ['./record_in_fs_01.wav',
-                     './record_in_fs_02.wav',
-                     './record_in_fs_03.wav']:
-            f = open(file, "w+")
-            f.close()
+        if create_files:
+            for file in ['./record_in_fs_01.wav',
+                         './record_in_fs_02.wav',
+                         './record_in_fs_03.wav']:
+                f = open(file, "w+")
+                f.close()
 
     @db_session
-    def __creates_archives(self):
+    def __creates_archives(self, create_files=True):
         # Archive 01 - Already Uploaded and Removed
         self.archive_01 = self.db_test.Archive(
             creation=self.initial_date + (60 * self.time_to_add),
@@ -143,8 +148,10 @@ class TestQueries(unittest.TestCase):
             uploaded=False,
             removed=False
         )
-        f = open('./archive_02.zip', 'w+')
-        f.close()
+
+        if create_files:
+            f = open('./archive_02.zip', 'w+')
+            f.close()
 
     @db_session
     def test_archive_records(self):
@@ -235,3 +242,36 @@ class TestQueries(unittest.TestCase):
             self.record_in_fs_03,
             removed_records
         )
+
+    @db_session
+    def test_upload_archive(self):
+        mock = mock_s3()
+        mock.start()
+
+        config_01 = {
+            'AWS': {
+                's3_bucket_name': 'my_bucket',
+                's3_region': 'eu-west-1',
+                'price_per_gb': '0.0023',
+                'budget_cost': '30',
+            }
+        }
+
+        self.assertTrue(
+            post_recording.upload_archive(self.db_test, config_01['AWS'])
+        )
+
+        self.__creates_archives()
+        s3 = boto3.resource('s3')
+        s3.create_bucket(Bucket=config_01['AWS']['s3_bucket_name'])
+        self.assertTrue(
+            post_recording.upload_archive(self.db_test, config_01['AWS']))
+        mock.stop()
+        remove('./archive_02.zip')
+
+        # Check if the Archive entry changed correctly
+        self.assertEqual(
+            2,
+            len(get_archives_uploaded(self.db_test))
+        )
+
