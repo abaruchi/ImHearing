@@ -21,7 +21,7 @@ def remove_uploaded_records(db):
     :return: List of Records removed
     """
 
-    list_of_local_records = query.get_local_record_files(db)
+    list_of_local_records = query.get_records_uploaded(db)
 
     if len(list_of_local_records) == 0:
         return 0
@@ -55,7 +55,7 @@ def remove_uploaded_archives(db):
     for archive in list_of_local_archives:
         archive_path = archive.local_path
 
-        if not archive.removed and path.isfile(archive_path):
+        if path.isfile(archive_path):
             remove(archive_path)
             archive.removed = True
             removed_archives_list.append(archive)
