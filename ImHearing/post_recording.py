@@ -123,7 +123,7 @@ def upload_archive(db, aws_config):
                 Filename=archive.local_path
             )
             archive.uploaded = True
-            archive.remote_path = "https://s3-%s.amazonaws.com/%s/%s" % \
+            archive.remote_path = "https://%s.%s.amazonaws.com/%s" % \
                                   (aws_config['s3_bucket_name'],
                                    aws_config['s3_region'],
                                    str(archive.id))
