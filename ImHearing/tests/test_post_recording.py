@@ -150,7 +150,7 @@ class TestQueries(unittest.TestCase):
         )
 
         if create_files:
-            f = open('./archive_02.zip', 'w+')
+            f = open('archive_02.zip', 'w+')
             f.close()
 
     @db_session
@@ -205,18 +205,36 @@ class TestQueries(unittest.TestCase):
 
         self.__creates_archives()
 
+        # Creates an additional Archive to test
+        archive_03 = self.db_test.Archive(
+            creation=self.initial_date + (180 * self.time_to_add),
+            local_path='./archive_03.zip',
+            size=self.record_size_mb * 3,
+            remote_path='http://somes3path/',
+            uploaded=True,
+            removed=False
+        )
+        f = open('archive_03.zip', 'w+')
+        f.close()
+
         self.assertTrue(
-            path.isfile(self.archive_02.local_path)
+            path.isfile(archive_03.local_path)
         )
 
         archive_list = post_recording.remove_uploaded_archives(self.db_test)
+
+        self.assertIn(
+            archive_03,
+            archive_list
+        )
         self.assertEqual(
             len(archive_list),
             1
         )
         self.assertFalse(
-            path.isfile(self.archive_02.local_path)
+            path.isfile(archive_03.local_path)
         )
+        remove('./archive_02.zip')
 
     @db_session
     def test_remove_uploaded_records(self):
