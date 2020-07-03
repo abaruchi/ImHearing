@@ -20,6 +20,15 @@ DB_CONFIG, db_ret = reader.db_config()
 # Queue for Threads
 task_queue = Queue(maxsize=1)
 
+# Semaphore to indicate that Thread is uploading a file and cannot be killed
+thread_uploading_archive = False
+
+# Global list to Handle thread inside Signal Handler
+thread_list = []
+
+# Variable used to Stop the Thread
+thread_run = True
+
 if global_ret < 0 or aws_ret < 0 or db_ret < 0:
     print("-- Some Error Found when Reading Config File --")
     if global_ret < 0:
@@ -51,6 +60,20 @@ def exit_handler(signal_received, frame):
     my_logger = logger.get_logger("exit_handler", GLOBAL_CONFIG['log_file'])
     my_logger.info("Terminating - Reveived Signal {}".format(signal_received))
 
+    # Stop Threads
+    if len(thread_list) > 0:
+        current_thread = thread_list.pop()
+
+        while thread_uploading_archive and current_thread.is_alive():
+            my_logger.info(
+                "Terminating - Waiting Thread to Upload".format(signal_received))
+            time.sleep(10)
+
+        if current_thread.is_alive():
+            my_logger.info(
+                "Terminating Thread".format(signal_received))
+            thread_run = False
+
     # Archive
     post_recording.archive_records(db, GLOBAL_CONFIG)
 
@@ -66,8 +89,11 @@ def processing():
     to the Queue, this routine consumes it.
     """
 
-    while True:
+    while True and thread_run:
         if not task_queue.empty():
+            # Set the semaphore
+            thread_uploading_archive = True
+
             # Archive, Upload & Remove Records & Archives
             post_recording.archive_records(db, GLOBAL_CONFIG)
 
@@ -85,8 +111,10 @@ def processing():
             post_recording.remove_uploaded_archives(db)
             post_recording.remove_uploaded_records(db)
 
-            # Removes task from queue after finishing all tasks
+            # Removes task from queue after finishing all tasks and Release Sem
+            thread_uploading_archive = False
             task_queue.get()
+    return
 
 
 def main():
@@ -133,6 +161,7 @@ def main():
 if __name__ == '__main__':
     signal(SIGINT, exit_handler)
     consumer_thread = threading.Thread(target=processing)
+    thread_list.append(consumer_thread)
 
     # Start Threads
     consumer_thread.start()
