@@ -41,12 +41,12 @@ def remove_uploaded_records(db):
 @db_session
 def remove_uploaded_archives(db):
     """
-    Remove all archives not uploaded yet.
+    Remove all archives Uploaded but in FileSystem
     :param db: DB Connection to Pony
     :return: List of removed Archives
     """
 
-    list_of_local_archives = query.get_local_archive_files(db)
+    list_of_local_archives = query.get_archives_uploaded(db)
 
     if len(list_of_local_archives) == 0:
         return 0
