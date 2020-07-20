@@ -90,6 +90,7 @@ def get_local_record_files(db):
     )
 
 
+# Views used by Flask / API
 @db_session
 def get_record_by_date(db, start_datetime=None,
                        end_datetime=None, timez='America/Sao_Paulo'):
@@ -147,3 +148,28 @@ def get_record_by_date(db, start_datetime=None,
                 'End': str(rec.end)
             }
     return ret_dict
+
+
+@db_session
+def get_all_records(db):
+    """
+
+    :param db:
+    :return:
+    """
+    return list(select(
+        records for records in db.Record
+    ))
+
+
+@db_session
+def get_all_archives(db):
+    """
+
+    :param db:
+    :return:
+    """
+    return list(select(
+        archives for archives in db.Archive
+    ))
+
