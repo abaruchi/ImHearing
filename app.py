@@ -38,6 +38,7 @@ def get_all_records():
 
     for record in list_of_records:
         records_dict[str(record.id)] = {
+            'ID': str(record.id),
             'Status': record.status,
             'Start': record.start,
             'End': record.end,
@@ -49,7 +50,7 @@ def get_all_records():
         else:
             records_dict[str(record.id)]['Archive'] = None
 
-    return records_dict
+    return render_template('recordslist.html', records=records_dict)
 
 
 @db_session
