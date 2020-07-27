@@ -1,0 +1,29 @@
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-wp8o{border-color:#000000;text-align:center;vertical-align:top}
+.tg .tg-mqa1{border-color:#000000;font-weight:bold;text-align:center;vertical-align:top}
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-mqa1">ID</th>
+    <th class="tg-mqa1">Created<br>Date</th>
+    <th class="tg-mqa1">Local<br>Path</th>
+    <th class="tg-mqa1">Link</th>
+  </tr>
+</thead>
+<tbody>
+{% for val in archives.values() %}
+  <tr>
+    <td class="tg-wp8o">{{ val["ID"] }}</td>
+    <td class="tg-wp8o">{{ val["Created"] }}</td>
+    <td class="tg-wp8o">{{ val["LocalPath"] }}</td>
+    <td class="tg-wp8o"><a href={{ val["RemotePath"] }} target="_blank" rel="noopener noreferrer">link</a></td>
+  </tr>
+{% endfor %}
+</tbody>
+</table>

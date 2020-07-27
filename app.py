@@ -62,7 +62,18 @@ def get_archive_id(archive_id):
 @db_session
 @v1.route('/archives/')
 def get_all_archives():
-    return query.get_all_archives(db)
+    list_of_archives = query.get_all_archives(db)
+    archives_dict = dict()
+
+    for archive in list_of_archives:
+        archives_dict[str(archive.id)] = {
+            'ID': str(archive.id),
+            'Created': archive.creation,
+            'LocalPath': archive.local_path,
+            'RemotePath': archive.remote_path
+        }
+
+    return render_template('archiveslist.html', archives=archives_dict)
 
 
 @v1.route('/query/<date>')
