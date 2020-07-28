@@ -76,9 +76,21 @@ def get_all_archives():
     return render_template('archiveslist.html', archives=archives_dict)
 
 
-@v1.route('/query/<date>')
-def get_query_by_date(date):
-    return "dates"
+@db_session
+@v1.route('/query/<datetime>')
+def get_query_by_date(datetime):
+
+    parameter = datetime.split('_')
+    start_date = parameter[0]
+    end_date = parameter[1]
+
+    records = query.get_record_by_date(
+        db,
+        start_date,
+        end_date
+    )
+
+    return render_template('querylist.html', records=records)
 
 
 app.register_blueprint(v1, url_prefix="/v1")
