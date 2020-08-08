@@ -1,11 +1,14 @@
 """ This file contains routines to display and get data from DB
 """
 
-from flask import Flask, render_template, Blueprint
+from uuid import UUID
+
+import validators
+from flask import Blueprint, Flask, render_template
 from pony.orm import db_session
 
-from ImHearing.database import models, query
 from ImHearing import reader
+from ImHearing.database import models, query
 
 DB_CONFIG, db_ret = reader.db_config()
 
@@ -111,8 +114,8 @@ def get_all_archives():
     return render_template('archiveslist.html', archives=archives_dict)
 
 
-@db_session
 @v1.route('/query/<datetime>')
+@db_session
 def get_query_by_date(datetime):
 
     parameter = datetime.split('_')
