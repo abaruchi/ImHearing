@@ -24,14 +24,29 @@ def index():
     return render_template('index.html')
 
 
-@db_session
 @v1.route('/records/<record_id>')
-def get_record_id(record_id):
-    return "Some record UUID {}".format(record_id)
-
-
 @db_session
+def get_record_id(record_id):
+
+    out = {}
+    if validators.uuid(record_id):
+        record_uuid = UUID(record_id)
+        rec = query.get_single_record(db, record_uuid.bytes)
+        if rec:
+            out = {
+                'Record_ID': str(rec.id),
+                'Start': rec.start,
+                'End': rec.end,
+                'Size': rec.size,
+                'Path': rec.size,
+                'Status': rec.status,
+                'Removed': rec.removed
+            }
+    return out
+
+
 @v1.route('/records/')
+@db_session
 def get_all_records():
     list_of_records = query.get_all_records(db)
     records_dict = dict()
@@ -53,14 +68,34 @@ def get_all_records():
     return render_template('recordslist.html', records=records_dict)
 
 
-@db_session
 @v1.route('/archives/<archive_id>')
-def get_archive_id(archive_id):
-    return "Some archive UUID {}".format(archive_id)
-
-
 @db_session
+def get_archive_id(archive_id):
+
+    out = {}
+    if validators.uuid(archive_id):
+        archive_uuid = UUID(archive_id)
+        arc = query.get_single_archive(db, archive_uuid.bytes)
+        if arc:
+            records_out = dict()
+            for rec in arc.records:
+                records_out[str(rec.id)] = {
+                    'Start': rec.start,
+                    'End': rec.end
+                }
+            out = {
+                'Archive_ID': arc.id,
+                'Creation': arc.creation,
+                'Size': arc.size,
+                'RemotePath': arc.remote_path,
+                'Removed': arc.removed,
+                'RecordsArchived': records_out
+            }
+    return out
+
+
 @v1.route('/archives/')
+@db_session
 def get_all_archives():
     list_of_archives = query.get_all_archives(db)
     archives_dict = dict()
