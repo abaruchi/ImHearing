@@ -135,4 +135,4 @@ app.register_blueprint(v1, url_prefix="/v1")
 
 
 # Todo: Remove debug after implementation
-app.run(debug=True)
+app.run(host='0.0.0.0')
