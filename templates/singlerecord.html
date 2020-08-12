@@ -1,0 +1,33 @@
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-wp8o{border-color:#000000;text-align:center;vertical-align:top}
+.tg .tg-mqa1{border-color:#000000;font-weight:bold;text-align:center;vertical-align:top}
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-mqa1">ID</th>
+    <th class="tg-mqa1">Start<br>Date</th>
+    <th class="tg-mqa1">End<br>Date</th>
+    <th class="tg-mqa1">Status</th>
+    <th class="tg-mqa1">Removed</th>
+    <th class="tg-mqa1">Size(MB)</th>
+    <th class="tg-mqa1">Path</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-wp8o">{{ record.Record_ID }}</td>
+    <td class="tg-wp8o">{{ record.Start }}</td>
+    <td class="tg-wp8o">{{ record.End }}</td>
+    <td class="tg-wp8o">{{ record.Status }}</td>
+    <td class="tg-wp8o">{{ record.Removed }}</td>
+    <td class="tg-wp8o">{{ record.Size }}</td>
+    <td class="tg-wp8o">{{ record.Path }}</td>
+  </tr>
+</tbody>
+</table>

@@ -90,6 +90,7 @@ def get_local_record_files(db):
     )
 
 
+# Views used by Flask / API
 @db_session
 def get_record_by_date(db, start_datetime=None,
                        end_datetime=None, timez='America/Sao_Paulo'):
@@ -147,3 +148,49 @@ def get_record_by_date(db, start_datetime=None,
                 'End': str(rec.end)
             }
     return ret_dict
+
+
+@db_session
+def get_all_records(db):
+    """
+    List all records, no filters applied
+    :param db: DB Connection
+    :return: List of all records
+    """
+    return list(select(
+        records for records in db.Record
+    ))
+
+
+@db_session
+def get_all_archives(db):
+    """
+    List all archives, no filters applied
+    :param db: DB Connection
+    :return: List of all archives
+    """
+    return list(select(
+        archives for archives in db.Archive
+    ))
+
+
+@db_session
+def get_single_record(db, record_id):
+    """
+    Get a single record, using primary key
+    :param db: DB Connection
+    :param record_id: record id to return (must be uuid in bytes)
+    :return: Record Object
+    """
+    return db.Record.get(id=record_id)
+
+
+@db_session
+def get_single_archive(db, archive_id):
+    """
+    Get a single archive, using primary key
+    :param db: DB Connection
+    :param archive_id: archive id to return (must be uuid in bytes)
+    :return: Archive Object
+    """
+    return db.Archive.get(id=archive_id)
