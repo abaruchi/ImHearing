@@ -41,11 +41,11 @@ def get_record_id(record_id):
                 'Start': rec.start,
                 'End': rec.end,
                 'Size': rec.size,
-                'Path': rec.size,
+                'Path': rec.path,
                 'Status': rec.status,
                 'Removed': rec.removed
             }
-    return out
+    return render_template('singlerecord.html', record=out)
 
 
 @v1.route('/records/')
@@ -94,7 +94,7 @@ def get_archive_id(archive_id):
                 'Removed': arc.removed,
                 'RecordsArchived': records_out
             }
-    return out
+    return render_template('singlearchive.html', archive=out)
 
 
 @v1.route('/archives/')
