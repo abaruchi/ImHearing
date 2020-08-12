@@ -25,27 +25,16 @@ except DatabaseError as e:
     exit(-1)
 
 
-def generate_remote_path(cur_uuid):
-    """
-
-    :param cur_uuid:
-    :return:
-    """
-
-    remote_path = "https://%s.%s.amazonaws.com/%s" % (
-        aws_ret['s3_bucket_name'],
-        aws_ret['s3_region'],
-        cur_uuid)
-    return remote_path
-
-
+@db_session
 def main():
 
     list_of_archives = query.get_archives_uploaded(db)
     for archive in list_of_archives:
-        p = generate_remote_path(str(archive.id))
-        print(p)
+        current_remote = archive.remote_path
+        new_remote_path = current_remote.replace('.eu-', '.s3-eu-')
+        archive.remote_path = new_remote_path
 
 
 if __name__ == '__main__':
     main()
+
