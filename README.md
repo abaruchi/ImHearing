@@ -1,5 +1,6 @@
 # Im Hearing
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/28e5842cd7d743418d6dc9fec5effbf0)](https://app.codacy.com/manual/abaruchi/ImHearing?utm_source=github.com&utm_medium=referral&utm_content=abaruchi/ImHearing&utm_campaign=Badge_Grade_Dashboard)
 [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php) ![TestPipeline](https://github.com/abaruchi/ImHearing/workflows/TestPipeline/badge.svg?event=push) [![codecov](https://codecov.io/gh/abaruchi/ImHearing/branch/master/graph/badge.svg)](https://codecov.io/gh/abaruchi/ImHearing)
 
 ## Contents
